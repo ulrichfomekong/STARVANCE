@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, useEffect, type ReactNode } from "react";
 
 type Page = "dashboard" | "location" | "planner" | "comparison" | "methodology";
 type ScenarioKey = "A" | "B";
@@ -156,7 +156,6 @@ function CoverageBanner() {
   );
 }
 
-// Replaced the Texas-specific map with a generic, abstract grid placeholder.
 function LocationMap({ large = false }: { large?: boolean }) {
   return (
     <div className={`location-map ${large ? "large" : ""}`}>
@@ -180,7 +179,6 @@ function LocationMap({ large = false }: { large?: boolean }) {
 
 function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Record<ScenarioKey, string[]>; goTo: (page: Page) => void }) {
   const isIowa = state === "Iowa";
-  
   const metrics = [
     { icon: "rain" as IconName, label: "Precipitation", value: "Not connected", meta: "Historical period pending", source: "Candidate: NASA POWER / GPM" },
     { icon: "temperature" as IconName, label: "Temperature", value: "Not connected", meta: "Historical period pending", source: "Candidate: NASA POWER" },
@@ -194,25 +192,26 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
         eyebrow="Dashboard"
         title={`${state} at a glance`}
         description="Explore environmental context and compare crop-rotation strategies across multiple growing seasons."
-        action={
-          <button className="primary-button" onClick={() => goTo("planner")}>
-            Open rotation planner <Icon name="arrow" size={16} />
-          </button>
-        }
+        action={<button className="primary-button" onClick={() => goTo("planner")}>Open rotation planner <Icon name="arrow" size={16} /></button>}
       />
       <CoverageBanner />
+      
+      {/* D2 Decision: Explicit Illustrative Badge for non-Iowa states */}
       {!isIowa && (
-        <div className="notice-box mb-4" style={{ marginBottom: "1.5rem", padding: "1rem", background: "#fff3cd", borderRadius: "8px", display: "flex", gap: "0.5rem" }}>
-          <Icon name="warning" size={19} />
-          <span>Detailed state-level agronomic data is currently only configured for Iowa. Showing generic structure for {state}.</span>
+        <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "var(--warning-bg, #fff3cd)", border: "1px solid var(--warning-border, #ffe69c)", borderRadius: "8px", display: "flex", gap: "0.75rem", alignItems: "center", color: "var(--warning-text, #664d03)" }}>
+          <Icon name="warning" size={20} />
+          <span>
+            <strong>Illustrative Data Notice:</strong> Real agronomic data is currently only configured for Iowa. The metrics shown for {state} are placeholders.
+          </span>
         </div>
       )}
+
       <section className="metric-grid">
         {metrics.map((metric) => (
           <article className="metric-card" key={metric.label}>
             <div className="metric-top">
               <span className="icon-box"><Icon name={metric.icon} /></span>
-              <StatusPill tone="sample">Sample status</StatusPill>
+              <StatusPill tone={isIowa ? "sample" : "warning"}>{isIowa ? "Sample status" : "Unavailable"}</StatusPill>
             </div>
             <span className="metric-label">{metric.label}</span>
             <strong className="metric-value">{metric.value}</strong>
@@ -228,32 +227,18 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
               <span className="eyebrow">Geographic context</span>
               <h2>{state} Profile</h2>
             </div>
-            <button className="text-button" onClick={() => goTo("location")}>
-              Explore location <Icon name="arrow" size={15} />
-            </button>
+            <button className="text-button" onClick={() => goTo("location")}>Explore location <Icon name="arrow" size={15} /></button>
           </div>
           <LocationMap />
           <div className="map-footer">
-            <div>
-              <small>STATE</small>
-              <strong>{state}</strong>
-            </div>
-            <div>
-              <small>AREA</small>
-              <strong>State Level</strong>
-            </div>
-            <div>
-              <small>STATUS</small>
-              <strong>{isIowa ? "Demonstration ready" : "Data pending"}</strong>
-            </div>
+            <div><small>STATE</small><strong>{state}</strong></div>
+            <div><small>AREA</small><strong>State Level</strong></div>
+            <div><small>STATUS</small><strong>{isIowa ? "Demonstration ready" : "Data pending"}</strong></div>
           </div>
         </article>
         <article className="panel scenarios-panel">
           <div className="panel-heading">
-            <div>
-              <span className="eyebrow">Rotation scenarios</span>
-              <h2>Ready to compare</h2>
-            </div>
+            <div><span className="eyebrow">Rotation scenarios</span><h2>Ready to compare</h2></div>
             <StatusPill tone="candidate">Illustrative</StatusPill>
           </div>
           {(["A", "B"] as ScenarioKey[]).map((key) => (
@@ -268,9 +253,7 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
               </div>
             </div>
           ))}
-          <button className="compare-button" onClick={() => goTo("comparison")}>
-            Compare scenarios <Icon name="compare" size={17} />
-          </button>
+          <button className="compare-button" onClick={() => goTo("comparison")}>Compare scenarios <Icon name="compare" size={17} /></button>
           <p className="fine-print"><Icon name="shield" size={14} /> Exploratory comparison — not a yield prediction.</p>
         </article>
       </section>
@@ -281,19 +264,12 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
 function ExploreLocation({ state }: { state: string }) {
   return (
     <>
-      <PageHeader
-        eyebrow="Explore location"
-        title={`${state} territory`}
-        description="Review geographic scope, environmental data readiness, and the limits of regional interpretation."
-      />
+      <PageHeader eyebrow="Explore location" title={`${state} territory`} description="Review geographic scope, environmental data readiness, and the limits of regional interpretation." />
       <CoverageBanner />
       <section className="explore-grid">
         <article className="panel map-panel">
           <div className="panel-heading">
-            <div>
-              <span className="eyebrow">Territory</span>
-              <h2>{state}</h2>
-            </div>
+            <div><span className="eyebrow">Territory</span><h2>{state}</h2></div>
             <StatusPill tone="candidate">{state === "Iowa" ? "Demonstration" : "Pending"}</StatusPill>
           </div>
           <LocationMap large />
@@ -312,12 +288,7 @@ function ExploreLocation({ state }: { state: string }) {
           <article className="panel data-readiness">
             <span className="eyebrow">Data readiness</span>
             <h2>Coverage inventory</h2>
-            {[
-              ["Meteorological context", "Candidate source identified"],
-              ["Soil moisture context", "Candidate source identified"],
-              ["Soil properties", "Coverage review pending"],
-              ["Crop suitability", "Not integrated"],
-            ].map(([name, status], i) => (
+            {[["Meteorological context", "Candidate source identified"], ["Soil moisture context", "Candidate source identified"], ["Soil properties", "Coverage review pending"], ["Crop suitability", "Not integrated"]].map(([name, status], i) => (
               <div className="readiness-row" key={name}>
                 <span className={`readiness-dot d${i}`} />
                 <div><strong>{name}</strong><span>{status}</span></div>
@@ -328,10 +299,7 @@ function ExploreLocation({ state }: { state: string }) {
       </section>
       <div className="resolution-note">
         <Icon name="warning" size={20} />
-        <div>
-          <strong>Resolution matters</strong>
-          <p>Environmental products can differ in spatial and temporal resolution. Regional grid cells must not be interpreted as exact conditions for an individual field.</p>
-        </div>
+        <div><strong>Resolution matters</strong><p>Environmental products can differ in spatial and temporal resolution. Regional grid cells must not be interpreted as exact conditions for an individual field.</p></div>
       </div>
     </>
   );
@@ -380,11 +348,7 @@ function RotationPlanner({ scenarios, setScenarios, goTo }: { scenarios: Record<
       </div>
       <section className="planner-panel panel">
         <div className="planner-heading">
-          <div>
-            <span className="eyebrow">Editing scenario {active}</span>
-            <h2>Season sequence</h2>
-            <p>Select a crop for each growing season. Candidate crops require local agronomic validation.</p>
-          </div>
+          <div><span className="eyebrow">Editing scenario {active}</span><h2>Season sequence</h2><p>Select a crop for each growing season. Candidate crops require local agronomic validation.</p></div>
           <button className="secondary-button" onClick={addSeason} disabled={scenarios[active].length >= 6}><Icon name="plus" size={16} /> Add season</button>
         </div>
         <div className="crop-timeline">
@@ -430,7 +394,6 @@ function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Reco
   const uniqueA = new Set(scenarios.A).size;
   const uniqueB = new Set(scenarios.B).size;
   const diversityResult = uniqueA === uniqueB ? "Similar diversity" : uniqueA > uniqueB ? "Scenario A is more varied" : "Scenario B is more varied";
-  
   const indicators = [
     { icon: "water" as IconName, name: "Water availability context", a: "Insufficient data", b: "Insufficient data", tone: "unknown", text: "Requires aligned precipitation, soil moisture, and crop water-demand evidence. No connected values are available." },
     { icon: "rain" as IconName, name: "Precipitation exposure", a: "Same regional context", b: "Same regional context", tone: "similar", text: "Both pathways are evaluated against the same location and historical period once a source dataset is connected." },
@@ -440,12 +403,7 @@ function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Reco
 
   return (
     <>
-      <PageHeader
-        eyebrow="Scenario comparison"
-        title="Compare pathways, not winners"
-        description="Inspect each indicator separately under a shared geographic context, dataset, period, and set of assumptions."
-        action={<button className="secondary-button" onClick={() => goTo("planner")}>Edit rotations <Icon name="rotate" size={16} /></button>}
-      />
+      <PageHeader eyebrow="Scenario comparison" title="Compare pathways, not winners" description="Inspect each indicator separately under a shared geographic context, dataset, period, and set of assumptions." action={<button className="secondary-button" onClick={() => goTo("planner")}>Edit rotations <Icon name="rotate" size={16} /></button>} />
       <CoverageBanner />
       <div className="comparison-context">
         <span><Icon name="pin" size={15} /><b>Location</b> {state}, State Level</span>
@@ -455,18 +413,12 @@ function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Reco
       </div>
       <section className="comparison-hero">
         <article className="scenario-column a">
-          <div className="scenario-title">
-            <span className="scenario-letter a">A</span>
-            <div><span>Scenario A</span><strong>{scenarios.A.length}-season rotation</strong></div>
-          </div>
+          <div className="scenario-title"><span className="scenario-letter a">A</span><div><span>Scenario A</span><strong>{scenarios.A.length}-season rotation</strong></div></div>
           <SeasonStrip crops={scenarios.A} tone="a" />
         </article>
         <div className="versus">VS</div>
         <article className="scenario-column b">
-          <div className="scenario-title">
-            <span className="scenario-letter b">B</span>
-            <div><span>Scenario B</span><strong>{scenarios.B.length}-season rotation</strong></div>
-          </div>
+          <div className="scenario-title"><span className="scenario-letter b">B</span><div><span>Scenario B</span><strong>{scenarios.B.length}-season rotation</strong></div></div>
           <SeasonStrip crops={scenarios.B} tone="b" />
         </article>
       </section>
@@ -483,9 +435,7 @@ function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Reco
                 <div><strong>{item.name}</strong><button title="Interpretation is explained below"><Icon name="info" size={14} /></button></div>
               </div>
               <div className={`indicator-value ${item.tone}`}><small>SCENARIO A</small><strong>{item.a}</strong></div>
-              <div className="indicator-track">
-                <i /><span>{item.tone === "similar" ? "Similar" : item.tone === "difference" ? "Difference" : "Data gap"}</span><i />
-              </div>
+              <div className="indicator-track"><i /><span>{item.tone === "similar" ? "Similar" : item.tone === "difference" ? "Difference" : "Data gap"}</span><i /></div>
               <div className={`indicator-value ${item.tone}`}><small>SCENARIO B</small><strong>{item.b}</strong></div>
               <p>{item.text}</p>
             </article>
@@ -493,14 +443,8 @@ function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Reco
         </div>
       </section>
       <section className="tradeoff-grid">
-        <article className="tradeoff-card potential">
-          <span><Icon name="check" size={18} /></span>
-          <div><h3>Potential considerations</h3><p>Additional crop types may broaden the sequence, but potential benefits depend on timing, soil, water, and management evidence.</p></div>
-        </article>
-        <article className="tradeoff-card constraint">
-          <span><Icon name="warning" size={18} /></span>
-          <div><h3>Constraints and risks</h3><p>No yield, irrigation, pest, input, or economic data is included. The comparison cannot establish farm-level performance.</p></div>
-        </article>
+        <article className="tradeoff-card potential"><span><Icon name="check" size={18} /></span><div><h3>Potential considerations</h3><p>Additional crop types may broaden the sequence, but potential benefits depend on timing, soil, water, and management evidence.</p></div></article>
+        <article className="tradeoff-card constraint"><span><Icon name="warning" size={18} /></span><div><h3>Constraints and risks</h3><p>No yield, irrigation, pest, input, or economic data is included. The comparison cannot establish farm-level performance.</p></div></article>
       </section>
     </>
   );
@@ -518,42 +462,26 @@ function Methodology() {
   const [openSource, setOpenSource] = useState<string | null>("NASA POWER");
   return (
     <>
-      <PageHeader
-        eyebrow="Data & methodology"
-        title="Transparent by design"
-        description="Understand which sources are candidates, how indicators will be derived, and what the current prototype cannot support."
-      />
+      <PageHeader eyebrow="Data & methodology" title="Transparent by design" description="Understand which sources are candidates, how indicators will be derived, and what the current prototype cannot support." />
       <div className="method-status">
-        <div>
-          <Icon name="database" size={22} />
-          <span><strong>0 live datasets connected</strong><small>This prototype uses local demonstration structures only.</small></span>
-        </div>
+        <div><Icon name="database" size={22} /><span><strong>0 live datasets connected</strong><small>This prototype uses local demonstration structures only.</small></span></div>
         <StatusPill tone="warning">Integration pending</StatusPill>
       </div>
       <section className="panel source-panel">
-        <div className="section-title">
-          <div><span className="eyebrow">Source register</span><h2>Candidate environmental datasets</h2></div>
-          <p>Inclusion here does not mean integrated.</p>
-        </div>
+        <div className="section-title"><div><span className="eyebrow">Source register</span><h2>Candidate environmental datasets</h2></div><p>Inclusion here does not mean integrated.</p></div>
         <div className="source-table">
-          <div className="source-head">
-            <span>Dataset / provider</span><span>Potential variable</span><span>Data type</span><span>Status</span><span />
-          </div>
+          <div className="source-head"><span>Dataset / provider</span><span>Potential variable</span><span>Data type</span><span>Status</span><span /></div>
           {sources.map((source) => (
             <div className="source-wrap" key={source.name}>
               <button className="source-row" onClick={() => setOpenSource(openSource === source.name ? null : source.name)}>
-                <span><strong>{source.name}</strong><small>{source.provider}</small></span>
-                <span>{source.variable}</span>
-                <span>{source.type}</span>
+                <span><strong>{source.name}</strong><small>{source.provider}</small></span><span>{source.variable}</span><span>{source.type}</span>
                 <span><StatusPill tone={source.status === "Candidate" ? "candidate" : "neutral"}>{source.status}</StatusPill></span>
                 <Icon name="chevron" size={16} className={openSource === source.name ? "up" : ""} />
               </button>
               {openSource === source.name && (
                 <div className="source-detail">
-                  <div><small>UNIT</small><strong>Not configured</strong></div>
-                  <div><small>SPATIAL RESOLUTION</small><strong>{source.resolution}</strong></div>
-                  <div><small>TEMPORAL / PERIOD</small><strong>Not configured</strong></div>
-                  <div><small>ACCESS DATE</small><strong>Not accessed</strong></div>
+                  <div><small>UNIT</small><strong>Not configured</strong></div><div><small>SPATIAL RESOLUTION</small><strong>{source.resolution}</strong></div>
+                  <div><small>TEMPORAL / PERIOD</small><strong>Not configured</strong></div><div><small>ACCESS DATE</small><strong>Not accessed</strong></div>
                 </div>
               )}
             </div>
@@ -568,18 +496,13 @@ function Methodology() {
           ["Assumptions", "Rules introduced where information is incomplete; these must remain visible to users.", "warning"],
         ].map(([title, text, tone], i) => (
           <article key={title}>
-            <span className={`type-number n${i}`}>0{i + 1}</span>
-            <h3>{title}</h3>
-            <p>{text}</p>
+            <span className={`type-number n${i}`}>0{i + 1}</span><h3>{title}</h3><p>{text}</p>
             <StatusPill tone={tone as "ready" | "candidate" | "sample" | "warning"}>{i === 0 ? "None connected" : i === 3 ? "Must be declared" : "Planned"}</StatusPill>
           </article>
         ))}
       </section>
       <section className="limitations panel">
-        <div className="limitations-title">
-          <span className="icon-box amber"><Icon name="warning" /></span>
-          <div><span className="eyebrow">Uncertainty & limitations</span><h2>Interpret results with care</h2></div>
-        </div>
+        <div className="limitations-title"><span className="icon-box amber"><Icon name="warning" /></span><div><span className="eyebrow">Uncertainty & limitations</span><h2>Interpret results with care</h2></div></div>
         <div className="limitations-grid">
           <div><strong>Spatial resolution</strong><p>Regional grid cells and mapped soil units cannot represent exact conditions within an individual field.</p></div>
           <div><strong>Temporal alignment</strong><p>Sources may cover different periods and reporting intervals; comparisons require explicit alignment.</p></div>
@@ -591,13 +514,34 @@ function Methodology() {
   );
 }
 
+// Global utility to get initial state from URL or LocalStorage
+function getInitialState(): string {
+  if (typeof window !== "undefined") {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlState = urlParams.get("state");
+    if (urlState && states.includes(urlState)) return urlState;
+
+    const savedState = localStorage.getItem("fieldshift_state");
+    if (savedState && states.includes(savedState)) return savedState;
+  }
+  return "Iowa"; // Default fallback
+}
+
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
-  // 1. Iowa is now the default state
-  const [state, setState] = useState("Iowa");
+  // Initialize using URL or LocalStorage, falling back to Iowa
+  const [state, setState] = useState(getInitialState);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scenarios, setScenarios] = useState(defaultScenarios);
   const selectedNav = useMemo(() => navItems.find((item) => item.id === page)!, [page]);
+
+  // Sync state changes to URL and LocalStorage
+  useEffect(() => {
+    localStorage.setItem("fieldshift_state", state);
+    const url = new URL(window.location.href);
+    url.searchParams.set("state", state);
+    window.history.replaceState({}, "", url.toString());
+  }, [state]);
 
   const navigate = (next: Page) => {
     setPage(next);
@@ -606,7 +550,7 @@ export default function App() {
   };
 
   const renderPage = () => {
-    // 2. Removed the "Unsupported" block. All pages now render with the selected state.
+    // The unsupported screen is entirely gone. All routes work for all states.
     if (page === "dashboard") return <Dashboard state={state} scenarios={scenarios} goTo={navigate} />;
     if (page === "location") return <ExploreLocation state={state} />;
     if (page === "planner") return <RotationPlanner scenarios={scenarios} setScenarios={setScenarios} goTo={navigate} />;
@@ -636,7 +580,6 @@ export default function App() {
           <div className="context-card">
             <span className="pin-dot"><Icon name="pin" size={17} /></span>
             <div>
-              {/* 3. Sidebar context dynamically updates based on selection */}
               <small>SELECTED STATE</small>
               <strong>{state}</strong>
               <span>{state === "Iowa" ? "Demonstration active" : "Data pending"}</span>
@@ -659,7 +602,6 @@ export default function App() {
         <main>{renderPage()}</main>
         <footer className="app-footer">
           <span>FIELD SHIFT · Exploratory decision-support prototype</span>
-          {/* 4. Footer text updated */}
           <span>Data values are not live · Demonstration data</span>
         </footer>
       </div>
