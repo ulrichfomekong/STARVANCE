@@ -1,0 +1,104 @@
+{
+  "version": "0.1-draft",
+  "note": "Rules encode verified qualitative guidance from research_report.md. Numeric thresholds marked requires_local_validation must be filled from current ISU or NRCS sources before use.",
+  "inputs": {
+    "field_history": ["previous_crop", "years_since_alfalfa_termination", "alfalfa_termination_timing", "alfalfa_termination_success"],
+    "soil": ["texture", "drainage_class", "ph", "organic_matter_pct"],
+    "weather_and_nasa": ["precip_mm_season", "soil_moisture_root_zone", "ndvi_trend", "growing_degree_days"],
+    "management": ["planned_crop", "n_source_and_rate", "cover_crop_seeding_date", "termination_date"]
+  },
+  "rules": [
+    {
+      "id": "R01_corn_after_alfalfa_n_credit",
+      "if": {"planned_crop": "corn", "previous_crop": "alfalfa", "years_since_alfalfa_termination": 1},
+      "then": {"flag": "first_year_alfalfa_credit", "n_guidance": "reduce_fertilizer_n_using_local_credit_table", "confidence": "medium"},
+      "sources": ["S04", "S10", "S24"],
+      "requires_local_validation": ["credit_table_values"]
+    },
+    {
+      "id": "R02_corn_after_alfalfa_second_year",
+      "if": {"planned_crop": "corn", "previous_crop": "alfalfa", "years_since_alfalfa_termination": 2},
+      "then": {"flag": "second_year_alfalfa_credit_variable", "n_guidance": "test_or_use_pre_side_dress_test", "confidence": "low-medium"},
+      "sources": ["S23", "S10"],
+      "requires_local_validation": ["credit_table_values", "soil_nitrate_test_thresholds"]
+    },
+    {
+      "id": "R03_alfalfa_termination_risk",
+      "if": {"previous_crop": "alfalfa", "alfalfa_termination_success": "uncertain_or_poor"},
+      "then": {"flag": "termination_risk", "action": "reduce_expected_alfalfa_benefit_and_recommend_herbicide_or_tillage_plan", "confidence": "high"},
+      "sources": ["S25", "S26"]
+    },
+    {
+      "id": "R04_alfalfa_spring_termination_delay",
+      "if": {"previous_crop": "alfalfa", "alfalfa_termination_timing": "spring", "planned_crop": "corn"},
+      "then": {"flag": "delayed_planting_and_n_release_risk", "action": "advise_earlier_termination_or_later_planting_plan", "confidence": "medium"},
+      "sources": ["S27", "S09"]
+    },
+    {
+      "id": "R05_corn_after_soybean_n_baseline",
+      "if": {"planned_crop": "corn", "previous_crop": "soybean"},
+      "then": {"flag": "lower_n_response_expected", "n_guidance": "use_corn_after_soybean_baseline_table", "confidence": "high"},
+      "sources": ["S01", "S03"],
+      "requires_local_validation": ["baseline_n_rate_table"]
+    },
+    {
+      "id": "R06_corn_after_corn_penalty",
+      "if": {"planned_crop": "corn", "previous_crop": "corn"},
+      "then": {"flag": "continuous_corn_yield_and_n_penalty", "action": "suggest_rotation_alternative_if_feasible", "confidence": "high"},
+      "sources": ["S01", "S03", "S05"]
+    },
+    {
+      "id": "R07_cereal_rye_before_corn",
+      "if": {"planned_crop": "corn", "cover_crop": "cereal_rye"},
+      "then": {"flag": "rye_corn_yield_risk", "action": "require_termination_10_to_14_days_before_planting", "yield_risk_note": "small and inconsistent yield declines reported", "confidence": "medium"},
+      "sources": ["S12", "S13", "S16", "S17"],
+      "requires_local_validation": ["rye_biomass_threshold", "n_rate_adjustment"]
+    },
+    {
+      "id": "R08_cereal_rye_before_soybean",
+      "if": {"planned_crop": "soybean", "cover_crop": "cereal_rye"},
+      "then": {"flag": "rye_soybean_compatible", "action": "allow_termination_up_to_planting_and_consider_late_termination_for_weed_control", "confidence": "medium"},
+      "sources": ["S13", "S15"],
+      "requires_local_validation": ["insurance_termination_deadline_by_region"]
+    },
+    {
+      "id": "R09_wet_spring_rye_termination",
+      "if": {"cover_crop": "cereal_rye", "precip_mm_season": "above_local_threshold"},
+      "then": {"flag": "termination_scheduling_risk", "action": "plan_termination_with_soil_moisture_and_planting_window", "nasa_inputs": ["soil_moisture_root_zone", "precip_mm_season"]},
+      "sources": ["S16", "S17"],
+      "requires_local_validation": ["precip_threshold"]
+    },
+    {
+      "id": "R10_oat_seeding_timing",
+      "if": {"planned_crop": "oats", "seeding_date": "late"},
+      "then": {"flag": "yield_and_test_weight_risk", "action": "recommend_earliest_feasible_seeding", "confidence": "medium"},
+      "sources": ["S19"],
+      "requires_local_validation": ["iowa_oat_planting_window"]
+    },
+    {
+      "id": "R11_oat_alfalfa_underseed",
+      "if": {"planned_crop": "oats", "underseed": "alfalfa"},
+      "then": {"flag": "underseed_compatible", "note": "no yield or test weight penalty observed in one organic trial series", "confidence": "low-medium"},
+      "sources": ["S19", "S20"]
+    },
+    {
+      "id": "R12_sudden_death_syndrome_rotation",
+      "if": {"planned_crop": "soybean", "years_since_soybean": 1},
+      "then": {"flag": "sds_risk_higher_in_two_year_rotation", "action": "prefer_longer_rotation_or_resistant_varieties", "confidence": "medium"},
+      "sources": ["S08"]
+    },
+    {
+      "id": "R13_weed_risk_alfalfa_and_oat_phases",
+      "if": {"previous_crop": ["alfalfa", "oats"]},
+      "then": {"flag": "higher_weed_biomass_possible", "action": "plan_weed_control_before_following_crop", "confidence": "medium"},
+      "sources": ["S08", "S19"]
+    }
+  ],
+  "unresolved_rules": [
+    "herbicide carryover and plant-back checks: data not retrieved; require product label database",
+    "nutrient removal per harvest unit: data not retrieved",
+    "water-use totals by stage: data not retrieved",
+    "red clover N credit for Iowa: requires local validation",
+    "economic filters: no cost or price data provided; do not estimate"
+  ]
+}

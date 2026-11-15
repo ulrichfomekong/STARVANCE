@@ -1,0 +1,230 @@
+mukey,cokey,compname,comppct_r,drainagecl,majcompflag
+411277,28635325,Waukee variant,100,Well drained,Yes
+411278,28635326,Hanlon,60,Moderately well drained,Yes
+411278,28635327,Spillville,30,Moderately well drained,Yes
+411278,28635328,Spillville,5,Moderately well drained,No
+411278,28635329,Coland,5,Poorly drained,No
+411280,28635330,Ankeny,100,Well drained,Yes
+411284,28635331,Clarion,100,Well drained,Yes
+411285,28635332,Spillville,60,Moderately well drained,Yes
+411285,28635333,Coland,30,Poorly drained,Yes
+411285,28635334,Coland,5,Poorly drained,No
+411285,28635335,Spillville,5,Moderately well drained,No
+411290,28635336,Dickinson,95,Somewhat excessively drained,Yes
+411290,28635337,Cylinder,5,Somewhat poorly drained,No
+411291,28635338,Dickinson,95,Somewhat excessively drained,Yes
+411291,28635339,Cylinder,5,Somewhat poorly drained,No
+411292,28635340,Dickinson,90,Somewhat excessively drained,Yes
+411292,28635341,Clarion,5,Well drained,No
+411292,28635342,Zenor,5,Somewhat excessively drained,No
+411293,28635343,Coland,65,Poorly drained,Yes
+411293,28635344,Terril,30,Moderately well drained,Yes
+411293,28635345,Spillville,5,Moderately well drained,No
+411304,28635346,Farrar,90,Well drained,Yes
+411304,28635347,Clarion,5,Well drained,No
+411304,28635348,Storden,5,Well drained,No
+411308,28635349,Terril,100,Moderately well drained,Yes
+411309,28635350,Flagler,95,Somewhat excessively drained,Yes
+411309,28635351,Wadena,5,Well drained,No
+411310,28635352,Flagler,100,Somewhat excessively drained,Yes
+411313,28635353,Hayden,60,Well drained,Yes
+411313,28635354,Storden,40,Well drained,Yes
+411316,28635355,Urban land,100,,Yes
+411317,28635356,Sparta,100,Excessively drained,Yes
+411318,28635357,Sparta,100,Excessively drained,Yes
+411319,28635358,Sparta,90,Excessively drained,Yes
+411319,28635359,Storden,10,Well drained,No
+411321,28635360,"Pits, sand and gravel",100,,Yes
+411322,28635361,"Pits, limestone quarry",100,,Yes
+411323,28635362,"Udorthents, loamy",100,,Yes
+411325,28635363,Wacousta,100,Very poorly drained,Yes
+411326,28635364,"Pits, clay",100,,Yes
+411329,28635365,Hanlon,90,Moderately well drained,Yes
+411329,28635366,Havelock,10,Poorly drained,No
+411332,28635367,Talcot,100,Poorly drained,Yes
+411342,28635368,Lindley,95,Well drained,Yes
+411342,28635369,Keswick,5,Somewhat poorly drained,No
+411343,28635370,Zenor,85,Somewhat excessively drained,Yes
+411343,28635371,Storden,15,Well drained,No
+411344,28635372,Zenor,85,Somewhat excessively drained,Yes
+411344,28635373,Storden,15,Well drained,No
+411345,28635374,Okoboji,95,Very poorly drained,Yes
+411345,28635375,Harps,5,Poorly drained,No
+411348,28635376,Water,100,,Yes
+1428042,28635377,Animal waste lagoon,100,,Yes
+1428043,28635378,Sewage lagoon,100,,Yes
+1428044,28635379,Intermittent water,100,,Yes
+2765537,28635380,Storden,10,Well drained,No
+2765537,28635381,Nicollet,5,Somewhat poorly drained,No
+2765537,28635382,Clarion,85,Well drained,Yes
+2765547,28635383,Clarion,85,Moderately well drained,Yes
+2765547,28635384,Nicollet,5,Somewhat poorly drained,No
+2765547,28635385,Webster,5,Poorly drained,No
+2765547,28635386,Storden,5,Well drained,No
+411296,28635387,Okoboji,5,Very poorly drained,No
+411296,28635388,Canisteo,5,Poorly drained,No
+411296,28635389,Klossner,90,Very poorly drained,Yes
+2800481,28635390,Nicollet,85,Somewhat poorly drained,Yes
+2800481,28635391,Okoboji,5,Very poorly drained,No
+2800481,28635392,Clarion,5,Moderately well drained,No
+2800481,28635393,Webster,5,Poorly drained,No
+2800480,28635394,Nicollet,85,Somewhat poorly drained,Yes
+2800480,28635395,Clarion,10,Well drained,No
+2800480,28635396,Webster,5,Poorly drained,No
+2835021,28635397,Canisteo,2,Poorly drained,No
+2835021,28635398,Webster,90,Poorly drained,Yes
+2835021,28635399,Nicollet,5,Somewhat poorly drained,No
+2835021,28635400,Okoboji,3,Very poorly drained,No
+2835032,28635401,Webster,85,Poorly drained,Yes
+2835032,28635402,Okoboji,5,Very poorly drained,No
+2835032,28635403,Nicollet,5,Somewhat poorly drained,No
+2835032,28635404,Glencoe,3,Very poorly drained,No
+2835032,28635405,Canisteo,2,Poorly drained,No
+411346,28635406,Harps,85,Poorly drained,Yes
+411346,28635407,Glencoe,10,Very poorly drained,No
+411346,28635408,Okoboji,3,Very poorly drained,No
+411346,28635409,Canisteo,2,Poorly drained,No
+2835194,28635410,Canisteo,10,Poorly drained,No
+2835194,28635411,Okoboji,5,Very poorly drained,No
+2835194,28635412,Harps,85,Poorly drained,Yes
+411305,28635413,Okoboji,2,Very poorly drained,No
+411305,28635414,Biscay,85,Poorly drained,Yes
+411305,28635415,Mayer,3,Poorly drained,No
+411305,28635416,Biscay,10,Very poorly drained,No
+411283,28635417,Clarion,85,Well drained,Yes
+411283,28635418,Storden,5,Well drained,No
+411283,28635419,Clarion,10,Moderately well drained,No
+2877334,28635420,Storden,5,Well drained,No
+2877334,28635421,Clarion,10,Well drained,No
+2877334,28635422,Clarion,85,Well drained,Yes
+2877301,28635423,Storden,10,Well drained,No
+2877301,28635424,Clarion,90,Well drained,Yes
+411282,28635425,Clarion,85,Well drained,Yes
+411282,28635426,Storden,10,Well drained,No
+411282,28635427,Nicollet,5,Somewhat poorly drained,No
+411312,28635428,Dickinson,8,Well drained,No
+411312,28635429,Estherville,85,Somewhat excessively drained,Yes
+411312,28635430,Biscay,1,Poorly drained,No
+411312,28635431,Wadena,6,Well drained,No
+411307,28635432,Terril,80,Well drained,Yes
+411307,28635433,Delft,8,Poorly drained,No
+411307,28635434,Storden,7,Well drained,No
+411307,28635435,Clarion,5,Well drained,No
+411333,28635436,Okoboji,85,Very poorly drained,Yes
+411333,28635437,Canisteo,10,Poorly drained,No
+411333,28635438,Harps,5,Poorly drained,No
+411340,28635439,Storden,40,Well drained,Yes
+411340,28635440,Clarion,45,Well drained,Yes
+411340,28635441,Delft,5,Poorly drained,No
+411340,28635442,Terril,10,Moderately well drained,No
+2916637,28635443,Clarion,45,Well drained,Yes
+2916637,28635444,Storden,40,Well drained,Yes
+2916637,28635445,Terril,10,Moderately well drained,No
+2916637,28635446,Delft,5,Poorly drained,No
+2921879,28635447,Canisteo,10,Poorly drained,No
+2921879,28635448,Okoboji,35,Very poorly drained,Yes
+2921879,28635449,Harps,55,Poorly drained,Yes
+411347,28635450,Harps,55,Poorly drained,Yes
+411347,28635451,Okoboji,35,Very poorly drained,Yes
+411347,28635452,Canisteo,10,Poorly drained,No
+411297,28635453,Lester,80,Well drained,Yes
+411297,28635454,Cordova,5,Poorly drained,No
+411297,28635455,Le Sueur,10,Somewhat poorly drained,No
+411297,28635456,Webster,5,Poorly drained,No
+2834933,28635457,Nicollet,5,Somewhat poorly drained,No
+2834933,28635458,Lester,85,Well drained,Yes
+2834933,28635459,Le Sueur,10,Somewhat poorly drained,No
+411299,28635460,Lester,85,Well drained,Yes
+411299,28635461,Le Sueur,3,Somewhat poorly drained,No
+411299,28635462,Storden,10,Well drained,No
+411299,28635463,Terril,2,Moderately well drained,No
+411298,28635464,Nicollet,5,Somewhat poorly drained,No
+411298,28635465,Lester,2,Well drained,No
+411298,28635466,Lester,80,Well drained,Yes
+411298,28635467,Le Sueur,10,Somewhat poorly drained,No
+411298,28635468,Storden,3,Well drained,No
+411301,28635469,Lester,3,Well drained,No
+411301,28635470,Lester,85,Well drained,Yes
+411301,28635471,Storden,10,Well drained,No
+411301,28635472,Terril,2,Moderately well drained,No
+411300,28635473,Storden,3,Well drained,No
+411300,28635474,Terril,2,Moderately well drained,No
+411300,28635475,Lester,10,Well drained,No
+411300,28635476,Lester,85,Well drained,Yes
+411303,28635477,Storden,10,Well drained,No
+411303,28635478,Terril,2,Moderately well drained,No
+411303,28635479,Lester,3,Well drained,No
+411303,28635480,Lester,85,Well drained,Yes
+411336,28635481,Storden,88,Well drained,Yes
+411336,28635482,Clarion,12,Well drained,No
+2916702,28635483,Storden,88,Well drained,Yes
+2916702,28635484,Clarion,12,Well drained,No
+411314,28635485,Le Sueur,10,Somewhat poorly drained,No
+411314,28635486,Cordova,85,Poorly drained,Yes
+411314,28635487,Glencoe,5,Very poorly drained,No
+411327,28635488,Canisteo,75,Poorly drained,Yes
+411327,28635489,Harps,5,Poorly drained,No
+411327,28635490,Okoboji,13,Very poorly drained,No
+411327,28635491,Glencoe,2,Very poorly drained,No
+411327,28635492,Webster,5,Poorly drained,No
+2922031,28635493,Okoboji,8,Very poorly drained,No
+2922031,28635494,Canisteo,85,Poorly drained,Yes
+2922031,28635495,Harps,2,Poorly drained,No
+2922031,28635496,Webster,5,Poorly drained,No
+2916677,28635497,Storden,86,Well drained,Yes
+2916677,28635498,Clarion,14,Well drained,No
+411337,28635499,Storden,85,Well drained,Yes
+411337,28635500,Clarion,10,Well drained,No
+411337,28635501,Terril,5,Moderately well drained,No
+2916730,28635502,Clarion,10,Well drained,No
+2916730,28635503,Terril,5,Moderately well drained,No
+2916730,28635504,Storden,85,Well drained,Yes
+2916771,28635505,Terril,10,Moderately well drained,No
+2916771,28635506,Clarion,5,Well drained,No
+2916771,28635507,Belview,85,Well drained,Yes
+411306,28635508,Glencoe,5,Very poorly drained,No
+411306,28635509,Rolfe,85,Very poorly drained,Yes
+411306,28635510,Webster,10,Poorly drained,No
+411286,28635511,Hayden,85,Well drained,Yes
+411286,28635512,Glencoe,5,Very poorly drained,No
+411286,28635513,Le Sueur,10,Somewhat poorly drained,No
+2993422,28635514,Hayden,85,Well drained,Yes
+2993422,28635515,Okoboji,5,Very poorly drained,No
+2993422,28635516,Le Sueur,10,Somewhat poorly drained,No
+411287,28635517,Hayden,85,Well drained,Yes
+411287,28635518,Le Sueur,10,Somewhat poorly drained,No
+411287,28635519,Dundas,5,Poorly drained,No
+411288,28635520,Hayden,85,Well drained,Yes
+411288,28635521,Le Sueur,5,Somewhat poorly drained,No
+411288,28635522,Dundas,8,Poorly drained,No
+411288,28635523,Storden,2,Well drained,No
+411289,28635524,Belview,10,Well drained,No
+411289,28635525,Hayden,90,Well drained,Yes
+411341,28635526,Storden,35,Well drained,Yes
+411341,28635527,Terril,10,Well drained,No
+411341,28635528,Omsrud,55,Well drained,Yes
+411295,28635529,Cylinder,85,Somewhat poorly drained,Yes
+411295,28635530,Biscay,10,Poorly drained,No
+411295,28635531,Biscay,5,Very poorly drained,No
+411275,28635532,Cylinder,4,Somewhat poorly drained,No
+411275,28635533,Biscay,1,Poorly drained,No
+411275,28635534,Wadena,85,Well drained,Yes
+411275,28635535,Estherville,10,Somewhat excessively drained,No
+411276,28635536,Estherville,10,Somewhat excessively drained,No
+411276,28635537,Dickinson,5,Well drained,No
+411276,28635538,Wadena,85,Well drained,Yes
+411320,28635539,Spillville,90,Somewhat poorly drained,Yes
+411320,28635540,Coland,10,Poorly drained,No
+411330,28635541,Coland,10,Poorly drained,No
+411330,28635542,Zook,90,Poorly drained,Yes
+411279,28635543,Coland,90,Poorly drained,Yes
+411279,28635544,Spillville,10,Somewhat poorly drained,No
+411311,28635545,Ottosen,5,Somewhat poorly drained,No
+411311,28635546,Guckeen,90,Somewhat poorly drained,Yes
+411311,28635547,Marna,5,Poorly drained,No
+411315,28635548,Kossuth,85,Poorly drained,Yes
+411315,28635549,Cumulic Endoaquolls,10,Poorly drained,No
+411315,28635550,Ottosen,5,Somewhat poorly drained,No
+411328,28635551,Kamrar,5,Moderately well drained,No
+411328,28635552,Cumulic Hapludolls,10,Moderately well drained,No
+411328,28635553,Bode,85,Moderately well drained,Yes
