@@ -1,0 +1,41 @@
+{
+  "pilot": {
+    "country": "USA",
+    "state": "Iowa",
+    "county": "Story County"
+  },
+  "rotations": [
+    {
+      "rotation_id": "rotation_1",
+      "name": "Scenario 1 \u2014 replace with team scenario",
+      "seasons": [
+        {
+          "year": 1,
+          "season": "Season 1",
+          "crop": "REPLACE_WITH_VALIDATED_CROP_NAME"
+        },
+        {
+          "year": 2,
+          "season": "Season 2",
+          "crop": "REPLACE_WITH_VALIDATED_CROP_NAME"
+        }
+      ]
+    },
+    {
+      "rotation_id": "rotation_2",
+      "name": "Scenario 2 \u2014 replace with team scenario",
+      "seasons": [
+        {
+          "year": 1,
+          "season": "Season 1",
+          "crop": "REPLACE_WITH_VALIDATED_CROP_NAME"
+        },
+        {
+          "year": 2,
+          "season": "Season 2",
+          "crop": "REPLACE_WITH_VALIDATED_CROP_NAME"
+        }
+      ]
+    }
+  ]
+}

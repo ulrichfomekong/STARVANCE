@@ -1,0 +1,86 @@
+{
+  "location": {
+    "name": "Story County reference point",
+    "state": "Iowa",
+    "country": "USA",
+    "latitude": 42.0361668,
+    "longitude": -93.4650441
+  },
+  "source": "ISRIC SoilGrids 2.0",
+  "source_type": "Modelled soil property estimates",
+  "depth_interval": "0-5 cm",
+  "statistic": "mean",
+  "properties": {
+    "clay": {
+      "description": "Clay content",
+      "raw_value": 284,
+      "raw_unit": "g/kg",
+      "value": 28.4,
+      "unit": "%",
+      "conversion_factor": 10,
+      "depth_interval": "0-5 cm",
+      "statistic": "mean",
+      "pixel": {
+        "row": 434,
+        "column": 467
+      },
+      "crs": "EPSG:4326",
+      "source_file": "soilgrids_clay_0-5cm_mean_story_tile.tif"
+    },
+    "nitrogen": {
+      "description": "Total nitrogen content",
+      "raw_value": 308,
+      "raw_unit": "cg/kg",
+      "value": 3.08,
+      "unit": "g/kg",
+      "conversion_factor": 100,
+      "depth_interval": "0-5 cm",
+      "statistic": "mean",
+      "pixel": {
+        "row": 434,
+        "column": 467
+      },
+      "crs": "EPSG:4326",
+      "source_file": "soilgrids_nitrogen_0-5cm_mean_story_tile.tif"
+    },
+    "phh2o": {
+      "description": "Soil pH measured in water",
+      "raw_value": 64,
+      "raw_unit": "pH x 10",
+      "value": 6.4,
+      "unit": "pH",
+      "conversion_factor": 10,
+      "depth_interval": "0-5 cm",
+      "statistic": "mean",
+      "pixel": {
+        "row": 434,
+        "column": 467
+      },
+      "crs": "EPSG:4326",
+      "source_file": "soilgrids_phh2o_0-5cm_mean_story_tile.tif"
+    },
+    "soc": {
+      "description": "Soil organic carbon content",
+      "raw_value": 245,
+      "raw_unit": "dg/kg",
+      "value": 24.5,
+      "unit": "g/kg",
+      "conversion_factor": 10,
+      "depth_interval": "0-5 cm",
+      "statistic": "mean",
+      "pixel": {
+        "row": 434,
+        "column": 467
+      },
+      "crs": "EPSG:4326",
+      "source_file": "soilgrids_soc_0-5cm_mean_story_tile.tif"
+    }
+  },
+  "limitations": [
+    "Values are modelled estimates, not local laboratory measurements.",
+    "Values represent the raster cells sampled at the reference point.",
+    "A single reference point does not represent the whole county.",
+    "The selected files contain mean predictions, not prediction uncertainty intervals.",
+    "The data describe the 0-5 cm soil depth interval only."
+  ]
+}
