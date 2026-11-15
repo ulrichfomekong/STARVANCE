@@ -86,7 +86,12 @@ The descriptive engine accepts a JSON object with at least two rotations:
       "name": "Scenario 1",
       "seasons": [
         {"year": 1, "season": "Season 1", "crop": "Team-validated crop name"},
-        {"year": 2, "season": "Season 2", "crop": "Team-validated crop name"}
+        {
+          "year": 2,
+          "season": "Season 2",
+          "crop": "Team-validated crop name",
+          "cover_crop": "Optional cover crop label"
+        }
       ]
     },
     {
@@ -101,24 +106,25 @@ The descriptive engine accepts a JSON object with at least two rotations:
 }
 ```
 
-`crop` is a team-provided crop label. The engine does not maintain a crop catalogue or infer crop identity. Season labels are descriptive labels supplied by the caller; the engine does not decide planting or harvest dates.
+`crop` is a team-provided crop label. The engine does not maintain a crop catalogue or infer crop identity. `cover_crop` is optional and is only used to attach a cited study note where the crop pairing has been reviewed. Season labels are descriptive labels supplied by the caller; the engine does not decide planting or harvest dates.
 
 ## 4. Descriptive engine output contract
 
 `rotation_engine.py` returns:
 - `assessment_status`: `descriptive_only_awaiting_agronomic_validation`
 - `ranking`, `scores`, `recommendation`: `null`
-- `rotation_summaries`: season count, distinct crop count, repeated crop occurrences, ordered crop sequence, crop counts, and adjacent crop transitions
+- `agronomic_rule_status`: identifies reviewed-research-only mode, confirms draft rules are not activated, and lists source-review/local-validation status
+- `rotation_summaries`: season count, distinct crop count, repeated crop occurrences, ordered crop sequence, crop counts, and adjacent crop transitions; transitions and season details may include cited, study-scoped research observations with explicit source-review and local-validation status
 - `comparison_warnings`: basic structural warnings such as unequal sequence lengths
 - `data_context`: availability and high-level provenance of the monthly environmental and soil files
 - `not_assessed`: explicit list of agronomic topics not evaluated
-- `validation_note`: statement that descriptive metrics are not recommendations
+- `validation_note`: statement that research observations are not locally validated predictions or recommendations
 
-The engine does **not** calculate crop suitability, yield, profitability, pest/disease pressure, nutrient response, water stress, climate adaptation, or rotation benefit/penalty.
+The engine does **not** calculate crop suitability, yield, profitability, pest/disease pressure, nutrient response, water stress, climate adaptation, or field-specific rotation benefit/penalty. Research observations are limited to directly reviewed sources (currently S01, S13, and S15), are cited in the output, and include study limitations. Such notes do not activate unvalidated draft rules or produce a score or recommendation.
 
 ## 5. Agronomic integration gate
 
-Person 3 must supply and validate any crop-specific rules before the team adds agronomic assessment. Each future rule should document:
+Rules that go beyond study-scoped research observations remain disabled until validated by the project agronomy owner. Each future active rule should document:
 - rule identifier and plain-language explanation
 - crop(s) and sequence position/season to which it applies
 - required input variable(s), unit(s), depth, period, and spatial applicability
@@ -128,7 +134,7 @@ Person 3 must supply and validate any crop-specific rules before the team adds a
 - uncertainty and known limitations
 - validation owner and validation status
 
-Until that review is complete, do not expose a numeric agronomic score or a “best rotation” recommendation.
+Until that review is complete, do not expose a numeric agronomic score or a “best rotation” recommendation. The current reviewed corn-rotation notes are single-study context from Iowa State's Nashua experiment; they are not local field predictions or fertilizer-rate advice.
 
 ## 6. Suggested repository placement
 
