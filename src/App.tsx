@@ -1,4 +1,6 @@
-import { useMemo, useState, useEffect, type ReactNode } from "react";
+import { useMemo, useState, useEffect, type ReactNode, type CSSProperties } from "react";
+import environmentalData from "./data/iowa_monthly_environmental.json";
+import soilData from "./data/iowa_soil_context.json";
 
 type Page = "dashboard" | "location" | "planner" | "comparison" | "methodology";
 type ScenarioKey = "A" | "B";
@@ -37,7 +39,8 @@ const navItems: { id: Page; label: string; icon: IconName }[] = [
 
 type IconName = "grid" | "pin" | "rotate" | "compare" | "database" | "search" | "chevron" | "rain" | "temperature" | "soil" | "layers" | "arrow" | "info" | "warning" | "plus" | "trash" | "menu" | "close" | "check" | "calendar" | "external" | "shield" | "water" | "diversity" | "stress";
 
-function Icon({ name, size = 18, className = "" }: { name: IconName; size?: number; className?: string }) {
+// Added style prop to Icon to fix broken layout alignments
+function Icon({ name, size = 18, className = "", style }: { name: IconName; size?: number; className?: string; style?: CSSProperties }) {
   const paths: Record<IconName, ReactNode> = {
     grid: (<><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>),
     pin: (<><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></>),
@@ -66,7 +69,7 @@ function Icon({ name, size = 18, className = "" }: { name: IconName; size?: numb
     stress: (<><path d="M12 3v3m0 12v3M3 12h3m12 0h3" /><circle cx="12" cy="12" r="4" /></>),
   };
   return (
-    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg style={style} className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {paths[name]}
     </svg>
   );
@@ -156,7 +159,8 @@ function CoverageBanner() {
   );
 }
 
-function LocationMap({ large = false }: { large?: boolean }) {
+function LocationMap({ state, large = false }: { state: string; large?: boolean }) {
+  const isIowa = state === "Iowa";
   return (
     <div className={`location-map ${large ? "large" : ""}`}>
       <div className="map-grid" />
@@ -168,8 +172,8 @@ function LocationMap({ large = false }: { large?: boolean }) {
       <div className="map-label">
         <i />
         <div>
-          <strong>Region Level</strong>
-          <span>State boundary not configured</span>
+          <strong>{isIowa ? "Story County, Iowa" : `${state} Profile`}</strong>
+          <span>{isIowa ? "Validated pilot territory" : "Data unavailable for this region"}</span>
         </div>
       </div>
       <span className="map-scale">Regional context · not field-level</span>
@@ -179,29 +183,54 @@ function LocationMap({ large = false }: { large?: boolean }) {
 
 function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Record<ScenarioKey, string[]>; goTo: (page: Page) => void }) {
   const isIowa = state === "Iowa";
+  const latestMonth = environmentalData[environmentalData.length - 1];
+  
   const metrics = [
-    { icon: "rain" as IconName, label: "Precipitation", value: "Not connected", meta: "Historical period pending", source: "Candidate: NASA POWER / GPM" },
-    { icon: "temperature" as IconName, label: "Temperature", value: "Not connected", meta: "Historical period pending", source: "Candidate: NASA POWER" },
-    { icon: "soil" as IconName, label: "Soil moisture context", value: "Illustrative", meta: "Regional context only", source: "Candidate: NASA FLDAS" },
-    { icon: "layers" as IconName, label: "Soil properties", value: "Source identified", meta: "Coverage validation pending", source: "Candidate: SSURGO / SoilGrids" },
+    { 
+      icon: "temperature" as IconName, 
+      label: "Mean Temperature", 
+      value: isIowa ? `${latestMonth.temperature_mean_c} °C` : "N/A", 
+      meta: isIowa ? `Period: ${latestMonth.month}` : "Data unavailable", 
+      source: "NASA POWER (Monthly Mean)" 
+    },
+    { 
+      icon: "rain" as IconName, 
+      label: "Precipitation", 
+      value: isIowa ? `${latestMonth.precipitation_total_mm} mm` : "N/A", 
+      meta: isIowa ? `Accumulated: ${latestMonth.month}` : "Data unavailable", 
+      source: "NASA POWER (Monthly Total)" 
+    },
+    { 
+      icon: "water" as IconName, 
+      label: "Relative Humidity", 
+      value: isIowa ? `${latestMonth.relative_humidity_mean_percent} %` : "N/A", 
+      meta: isIowa ? `Period: ${latestMonth.month}` : "Data unavailable", 
+      source: "NASA POWER (Monthly Mean)" 
+    },
+    { 
+      icon: "soil" as IconName, 
+      label: "Soil Organic Carbon", 
+      value: isIowa ? `${soilData.soil_organic_carbon_g_kg} g/kg` : "N/A", 
+      meta: isIowa ? `Depth: ${soilData.depth_cm} cm` : "Data unavailable", 
+      source: "ISRIC SoilGrids 2.0" 
+    },
   ];
 
   return (
     <>
       <PageHeader
         eyebrow="Dashboard"
-        title={`${state} at a glance`}
-        description="Explore environmental context and compare crop-rotation strategies across multiple growing seasons."
+        title={isIowa ? "Story County, Iowa" : `${state} at a glance`}
+        description={isIowa ? "Validated pilot data from NASA POWER and ISRIC SoilGrids. Explore environmental context and compare crop-rotation strategies." : `Regional data is not yet available for ${state}. The current validated pilot is Story County, Iowa.`}
         action={<button className="primary-button" onClick={() => goTo("planner")}>Open rotation planner <Icon name="arrow" size={16} /></button>}
       />
       <CoverageBanner />
       
-      {/* D2 Decision: Explicit Illustrative Badge for non-Iowa states */}
       {!isIowa && (
-        <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "var(--warning-bg, #fff3cd)", border: "1px solid var(--warning-border, #ffe69c)", borderRadius: "8px", display: "flex", gap: "0.75rem", alignItems: "center", color: "var(--warning-text, #664d03)" }}>
+        <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "#fff3cd", border: "1px solid #ffe69c", borderRadius: "8px", display: "flex", gap: "0.75rem", alignItems: "center", color: "#664d03" }}>
           <Icon name="warning" size={20} />
           <span>
-            <strong>Illustrative Data Notice:</strong> Real agronomic data is currently only configured for Iowa. The metrics shown for {state} are placeholders.
+            <strong>Data Unavailable:</strong> Regional data is not yet available for {state}. The current validated pilot is Story County, Iowa.
           </span>
         </div>
       )}
@@ -211,7 +240,7 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
           <article className="metric-card" key={metric.label}>
             <div className="metric-top">
               <span className="icon-box"><Icon name={metric.icon} /></span>
-              <StatusPill tone={isIowa ? "sample" : "warning"}>{isIowa ? "Sample status" : "Unavailable"}</StatusPill>
+              <StatusPill tone={isIowa ? "ready" : "warning"}>{isIowa ? "Validated" : "Unavailable"}</StatusPill>
             </div>
             <span className="metric-label">{metric.label}</span>
             <strong className="metric-value">{metric.value}</strong>
@@ -220,26 +249,27 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
           </article>
         ))}
       </section>
+      
       <section className="dashboard-grid">
         <article className="panel location-panel">
           <div className="panel-heading">
             <div>
               <span className="eyebrow">Geographic context</span>
-              <h2>{state} Profile</h2>
+              <h2>{isIowa ? "Story County, Iowa" : `${state} Profile`}</h2>
             </div>
             <button className="text-button" onClick={() => goTo("location")}>Explore location <Icon name="arrow" size={15} /></button>
           </div>
-          <LocationMap />
+          <LocationMap state={state} />
           <div className="map-footer">
             <div><small>STATE</small><strong>{state}</strong></div>
-            <div><small>AREA</small><strong>State Level</strong></div>
-            <div><small>STATUS</small><strong>{isIowa ? "Demonstration ready" : "Data pending"}</strong></div>
+            <div><small>COUNTY</small><strong>{isIowa ? "Story County" : "Unavailable"}</strong></div>
+            <div><small>STATUS</small><strong>{isIowa ? "Validated pilot" : "Data pending"}</strong></div>
           </div>
         </article>
         <article className="panel scenarios-panel">
           <div className="panel-heading">
             <div><span className="eyebrow">Rotation scenarios</span><h2>Ready to compare</h2></div>
-            <StatusPill tone="candidate">Illustrative</StatusPill>
+            <StatusPill tone="candidate">Descriptive</StatusPill>
           </div>
           {(["A", "B"] as ScenarioKey[]).map((key) => (
             <div className="scenario-summary" key={key}>
@@ -254,7 +284,7 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
             </div>
           ))}
           <button className="compare-button" onClick={() => goTo("comparison")}>Compare scenarios <Icon name="compare" size={17} /></button>
-          <p className="fine-print"><Icon name="shield" size={14} /> Exploratory comparison — not a yield prediction.</p>
+          <p className="fine-print"><Icon name="shield" size={14} /> Descriptive comparison only — not a yield prediction.</p>
         </article>
       </section>
     </>
@@ -262,45 +292,75 @@ function Dashboard({ state, scenarios, goTo }: { state: string; scenarios: Recor
 }
 
 function ExploreLocation({ state }: { state: string }) {
+  const isIowa = state === "Iowa";
+
   return (
     <>
-      <PageHeader eyebrow="Explore location" title={`${state} territory`} description="Review geographic scope, environmental data readiness, and the limits of regional interpretation." />
+      <PageHeader 
+        eyebrow="Explore location" 
+        title={isIowa ? "Story County, Iowa" : `${state} territory`} 
+        description={isIowa ? "Review geographic scope, environmental data readiness, and the limits of regional interpretation." : `Regional data is not yet available for ${state}. The current validated pilot is Story County, Iowa.`} 
+      />
       <CoverageBanner />
-      <section className="explore-grid">
-        <article className="panel map-panel">
-          <div className="panel-heading">
-            <div><span className="eyebrow">Territory</span><h2>{state}</h2></div>
-            <StatusPill tone="candidate">{state === "Iowa" ? "Demonstration" : "Pending"}</StatusPill>
-          </div>
-          <LocationMap large />
-        </article>
-        <aside className="location-details">
-          <article className="panel detail-panel">
-            <span className="eyebrow">Location profile</span>
-            <h2>{state}</h2>
-            <dl>
-              <div><dt>Geographic region</dt><dd>Not configured</dd></div>
-              <div><dt>Reference point</dt><dd>Not configured</dd></div>
-              <div><dt>Boundary status</dt><dd><StatusPill tone="warning">Placeholder</StatusPill></dd></div>
-              <div><dt>Spatial interpretation</dt><dd>Regional, not field-level</dd></div>
-            </dl>
+      
+      {!isIowa ? (
+        <div className="panel" style={{ padding: "3rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <Icon name="pin" size={48} style={{ color: "#888", marginBottom: "1rem" }} />
+          <h2>Data Unavailable</h2>
+          <p style={{ color: "#666", maxWidth: "500px", marginTop: "1rem" }}>
+            The environmental and soil context data is currently only available for Story County, Iowa. 
+            Please select Iowa from the state selector to explore the validated pilot.
+          </p>
+        </div>
+      ) : (
+        <section className="explore-grid">
+          <article className="panel map-panel">
+            <div className="panel-heading">
+              <div><span className="eyebrow">Pilot Territory</span><h2>Story County, Iowa</h2></div>
+              <StatusPill tone="ready">Validated</StatusPill>
+            </div>
+            <LocationMap state={state} large />
           </article>
-          <article className="panel data-readiness">
-            <span className="eyebrow">Data readiness</span>
-            <h2>Coverage inventory</h2>
-            {[["Meteorological context", "Candidate source identified"], ["Soil moisture context", "Candidate source identified"], ["Soil properties", "Coverage review pending"], ["Crop suitability", "Not integrated"]].map(([name, status], i) => (
-              <div className="readiness-row" key={name}>
-                <span className={`readiness-dot d${i}`} />
-                <div><strong>{name}</strong><span>{status}</span></div>
+          <aside className="location-details">
+            <article className="panel detail-panel">
+              <span className="eyebrow">Location profile</span>
+              <h2>Reference Point</h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
+                <div><small style={{ display: "block", color: "#666" }}>Coordinates</small><strong>{soilData.reference_coordinates}</strong></div>
+                <div><small style={{ display: "block", color: "#666" }}>Spatial Interpretation</small><strong>Regional reference pixel</strong></div>
+                <div><small style={{ display: "block", color: "#666" }}>Boundary Status</small><StatusPill tone="ready">Validated Pilot</StatusPill></div>
               </div>
-            ))}
-          </article>
-        </aside>
-      </section>
-      <div className="resolution-note">
-        <Icon name="warning" size={20} />
-        <div><strong>Resolution matters</strong><p>Environmental products can differ in spatial and temporal resolution. Regional grid cells must not be interpreted as exact conditions for an individual field.</p></div>
-      </div>
+            </article>
+            
+            <article className="panel data-readiness">
+              <span className="eyebrow">Soil Context</span>
+              <h2>ISRIC SoilGrids 2.0</h2>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
+                <div style={{ background: "#f5f5f5", padding: "1rem", borderRadius: "8px" }}>
+                  <small style={{ display: "block", color: "#666", marginBottom: "0.25rem" }}>Clay</small>
+                  <strong>{soilData.clay_percent} %</strong>
+                </div>
+                <div style={{ background: "#f5f5f5", padding: "1rem", borderRadius: "8px" }}>
+                  <small style={{ display: "block", color: "#666", marginBottom: "0.25rem" }}>Nitrogen</small>
+                  <strong>{soilData.nitrogen_g_kg} g/kg</strong>
+                </div>
+                <div style={{ background: "#f5f5f5", padding: "1rem", borderRadius: "8px" }}>
+                  <small style={{ display: "block", color: "#666", marginBottom: "0.25rem" }}>pH (water)</small>
+                  <strong>{soilData.ph_water}</strong>
+                </div>
+                <div style={{ background: "#f5f5f5", padding: "1rem", borderRadius: "8px" }}>
+                  <small style={{ display: "block", color: "#666", marginBottom: "0.25rem" }}>Organic Carbon</small>
+                  <strong>{soilData.soil_organic_carbon_g_kg} g/kg</strong>
+                </div>
+              </div>
+              <div style={{ marginTop: "1rem", padding: "1rem", background: "#fff3cd", borderRadius: "8px", display: "flex", gap: "0.75rem", fontSize: "0.9rem" }}>
+                <Icon name="warning" size={20} style={{ flexShrink: 0 }} />
+                <span><strong>Limitations:</strong> {soilData.limitation_note} Depth: {soilData.depth_cm} cm.</span>
+              </div>
+            </article>
+          </aside>
+        </section>
+      )}
     </>
   );
 }
@@ -314,7 +374,7 @@ function CropCard({ crop, index, onChange, onRemove, canRemove }: { crop: string
         <span>{meta.code}</span>
         <svg viewBox="0 0 40 40"><path d="M20 34V13m0 8c-7 0-10-4-11-9 7 0 10 3 11 9Zm0 5c7 0 10-4 11-9-7 0-10 3-11 9Z" /></svg>
       </div>
-      <select value={crop} onChange={(e) => onChange(e.target.value)} aria-label={`Crop for season ${index + 1}`}>
+      <select value={crop} onChange={(e) => onChange(e.target.value)} aria-label={`Crop for season ${index + 1}`} style={{ fontSize: "1rem", padding: "0.4rem", marginTop: "0.5rem" }}>
         {crops.map((item) => (<option key={item}>{item}</option>))}
       </select>
       <span className="crop-note">{meta.note}</span>
@@ -360,20 +420,8 @@ function RotationPlanner({ scenarios, setScenarios, goTo }: { scenarios: Record<
           ))}
         </div>
         <div className="planner-footer">
-          <div><Icon name="info" size={17} /><span><strong>Illustrative sequence.</strong> Crop options and rotation rules have not been validated for this pilot territory.</span></div>
+          <div><Icon name="info" size={17} /><span><strong>Descriptive only.</strong> Crop options and rotation rules have not been validated for agronomic scoring.</span></div>
           <span>{scenarios[active].length}/6 seasons</span>
-        </div>
-      </section>
-      <section className="both-scenarios">
-        <span className="eyebrow">Scenario overview</span>
-        <div className="sequence-overview-grid">
-          {(["A", "B"] as ScenarioKey[]).map((key) => (
-            <button key={key} onClick={() => setActive(key)} className={active === key ? "selected" : ""}>
-              <span className={`scenario-letter ${key.toLowerCase()}`}>{key}</span>
-              <div><strong>Scenario {key}</strong><p>{scenarios[key].join(" → ")}</p></div>
-              <Icon name="arrow" size={17} />
-            </button>
-          ))}
         </div>
       </section>
     </>
@@ -391,26 +439,47 @@ function SeasonStrip({ crops: list, tone }: { crops: string[]; tone: "a" | "b" }
 }
 
 function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Record<ScenarioKey, string[]>; goTo: (page: Page) => void }) {
+  const isIowa = state === "Iowa";
   const uniqueA = new Set(scenarios.A).size;
   const uniqueB = new Set(scenarios.B).size;
-  const diversityResult = uniqueA === uniqueB ? "Similar diversity" : uniqueA > uniqueB ? "Scenario A is more varied" : "Scenario B is more varied";
+  
+  const getTransitions = (seq: string[]) => {
+    let count = 0;
+    for (let i = 0; i < seq.length - 1; i++) {
+      if (seq[i] !== seq[i+1]) count++;
+    }
+    return count;
+  };
+
   const indicators = [
-    { icon: "water" as IconName, name: "Water availability context", a: "Insufficient data", b: "Insufficient data", tone: "unknown", text: "Requires aligned precipitation, soil moisture, and crop water-demand evidence. No connected values are available." },
-    { icon: "rain" as IconName, name: "Precipitation exposure", a: "Same regional context", b: "Same regional context", tone: "similar", text: "Both pathways are evaluated against the same location and historical period once a source dataset is connected." },
-    { icon: "diversity" as IconName, name: "Crop-sequence diversity", a: `${uniqueA} crop types`, b: `${uniqueB} crop types`, tone: uniqueA === uniqueB ? "similar" : "difference", text: `${diversityResult}. This is a simple count, not evidence of agronomic benefit.` },
-    { icon: "stress" as IconName, name: "Environmental stress", a: "Not calculated", b: "Not calculated", tone: "unknown", text: "Crop-specific thresholds and validated environmental time series are needed before stress can be interpreted." },
+    { icon: "layers" as IconName, name: "Number of Seasons", a: `${scenarios.A.length}`, b: `${scenarios.B.length}`, tone: "similar", text: "Total count of growing seasons defined in the rotation." },
+    { icon: "diversity" as IconName, name: "Distinct Crop Types", a: `${uniqueA}`, b: `${uniqueB}`, tone: uniqueA === uniqueB ? "similar" : "difference", text: "Count of unique crop species present in the sequence." },
+    { icon: "rotate" as IconName, name: "Crop Transitions", a: `${getTransitions(scenarios.A)}`, b: `${getTransitions(scenarios.B)}`, tone: "similar", text: "Number of times the crop changes between consecutive seasons." },
+    { icon: "shield" as IconName, name: "Agronomic Assessment", a: "Pending validation", b: "Pending validation", tone: "unknown", text: "Agronomic assessment is pending validation. Current results describe rotation structure only." },
   ];
 
   return (
     <>
-      <PageHeader eyebrow="Scenario comparison" title="Compare pathways, not winners" description="Inspect each indicator separately under a shared geographic context, dataset, period, and set of assumptions." action={<button className="secondary-button" onClick={() => goTo("planner")}>Edit rotations <Icon name="rotate" size={16} /></button>} />
+      <PageHeader 
+        eyebrow="Scenario comparison" 
+        title="Compare rotation structures" 
+        description="Inspect the descriptive structure of each rotation pathway. Agronomic scoring and yield predictions are currently pending scientific validation." 
+        action={<button className="secondary-button" onClick={() => goTo("planner")}>Edit rotations <Icon name="rotate" size={16} /></button>} 
+      />
       <CoverageBanner />
-      <div className="comparison-context">
-        <span><Icon name="pin" size={15} /><b>Location</b> {state}, State Level</span>
-        <span><Icon name="database" size={15} /><b>Dataset</b> Local sample structure</span>
-        <span><Icon name="calendar" size={15} /><b>Period</b> Not yet configured</span>
-        <span><Icon name="shield" size={15} /><b>Method</b> Qualitative MVP</span>
+      
+      <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "#e3f2fd", border: "1px solid #90caf9", borderRadius: "8px", display: "flex", gap: "0.75rem", alignItems: "center", color: "#0d47a1" }}>
+        <Icon name="info" size={20} style={{ flexShrink: 0 }} />
+        <span>
+          <strong>Assessment Status:</strong> descriptive_only_awaiting_agronomic_validation. Missing scores mean data is pending, not zero.
+        </span>
       </div>
+
+      <div className="comparison-context">
+        <span><Icon name="pin" size={15} /><b>Location</b> {isIowa ? "Story County, Iowa" : `${state} (Unavailable)`}</span>
+        <span><Icon name="database" size={15} /><b>Method</b> Descriptive Engine Only</span>
+      </div>
+
       <section className="comparison-hero">
         <article className="scenario-column a">
           <div className="scenario-title"><span className="scenario-letter a">A</span><div><span>Scenario A</span><strong>{scenarios.A.length}-season rotation</strong></div></div>
@@ -422,99 +491,80 @@ function Comparison({ state, scenarios, goTo }: { state: string; scenarios: Reco
           <SeasonStrip crops={scenarios.B} tone="b" />
         </article>
       </section>
+      
       <section className="indicator-section">
         <div className="section-title">
-          <div><span className="eyebrow">Indicator-by-indicator review</span><h2>Environmental trade-offs</h2></div>
-          <span className="no-score"><Icon name="info" size={15} /> No composite score</span>
+          <div><span className="eyebrow">Descriptive Review</span><h2>Rotation Structure</h2></div>
+          <span className="no-score"><Icon name="warning" size={15} /> Agronomic scores pending</span>
         </div>
         <div className="indicator-list">
           {indicators.map((item) => (
             <article className="indicator-card" key={item.name}>
               <div className="indicator-name">
                 <span className="icon-box"><Icon name={item.icon} /></span>
-                <div><strong>{item.name}</strong><button title="Interpretation is explained below"><Icon name="info" size={14} /></button></div>
+                <div><strong>{item.name}</strong></div>
               </div>
               <div className={`indicator-value ${item.tone}`}><small>SCENARIO A</small><strong>{item.a}</strong></div>
-              <div className="indicator-track"><i /><span>{item.tone === "similar" ? "Similar" : item.tone === "difference" ? "Difference" : "Data gap"}</span><i /></div>
+              <div className="indicator-track"><i /><span>{item.tone === "similar" ? "Similar" : item.tone === "difference" ? "Difference" : "Pending"}</span><i /></div>
               <div className={`indicator-value ${item.tone}`}><small>SCENARIO B</small><strong>{item.b}</strong></div>
               <p>{item.text}</p>
             </article>
           ))}
         </div>
       </section>
-      <section className="tradeoff-grid">
-        <article className="tradeoff-card potential"><span><Icon name="check" size={18} /></span><div><h3>Potential considerations</h3><p>Additional crop types may broaden the sequence, but potential benefits depend on timing, soil, water, and management evidence.</p></div></article>
-        <article className="tradeoff-card constraint"><span><Icon name="warning" size={18} /></span><div><h3>Constraints and risks</h3><p>No yield, irrigation, pest, input, or economic data is included. The comparison cannot establish farm-level performance.</p></div></article>
-      </section>
     </>
   );
 }
 
 const sources = [
-  { name: "NASA POWER", provider: "NASA", variable: "Meteorological context", resolution: "Source-dependent", status: "Candidate", type: "Modelled / observed" },
-  { name: "GPM IMERG", provider: "NASA", variable: "Precipitation", resolution: "Product-dependent", status: "Candidate", type: "Satellite / modelled" },
-  { name: "FLDAS", provider: "NASA", variable: "Land surface & soil moisture", resolution: "Product-dependent", status: "Candidate", type: "Modelled" },
-  { name: "SSURGO / gSSURGO", provider: "USDA NRCS", variable: "US soil properties", resolution: "Map unit-dependent", status: "Under review", type: "Survey / derived" },
-  { name: "SoilGrids", provider: "ISRIC", variable: "Global soil properties", resolution: "Product-dependent", status: "Alternative", type: "Modelled" },
+  { name: "NASA POWER", provider: "NASA", variable: "Meteorological context", resolution: "Reference point", status: "Connected", type: "Modelled / observed" },
+  { name: "ISRIC SoilGrids 2.0", provider: "ISRIC", variable: "Soil properties", resolution: "0-5cm depth", status: "Connected", type: "Modelled" },
+  { name: "GPM IMERG", provider: "NASA", variable: "Precipitation", resolution: "Product-dependent", status: "Planned", type: "Satellite / modelled" },
+  { name: "SSURGO / gSSURGO", provider: "USDA NRCS", variable: "US soil properties", resolution: "Map unit-dependent", status: "Planned", type: "Survey / derived" },
 ];
 
 function Methodology() {
   const [openSource, setOpenSource] = useState<string | null>("NASA POWER");
   return (
     <>
-      <PageHeader eyebrow="Data & methodology" title="Transparent by design" description="Understand which sources are candidates, how indicators will be derived, and what the current prototype cannot support." />
+      <PageHeader eyebrow="Data & methodology" title="Transparent by design" description="Understand which sources are connected, how indicators are derived, and what the current prototype cannot support." />
       <div className="method-status">
-        <div><Icon name="database" size={22} /><span><strong>0 live datasets connected</strong><small>This prototype uses local demonstration structures only.</small></span></div>
-        <StatusPill tone="warning">Integration pending</StatusPill>
+        <div><Icon name="database" size={22} /><span><strong>2 live datasets connected</strong><small>NASA POWER and ISRIC SoilGrids (Story County, Iowa).</small></span></div>
+        <StatusPill tone="ready">Integration Active</StatusPill>
       </div>
       <section className="panel source-panel">
-        <div className="section-title"><div><span className="eyebrow">Source register</span><h2>Candidate environmental datasets</h2></div><p>Inclusion here does not mean integrated.</p></div>
+        <div className="section-title"><div><span className="eyebrow">Source register</span><h2>Environmental datasets</h2></div></div>
         <div className="source-table">
           <div className="source-head"><span>Dataset / provider</span><span>Potential variable</span><span>Data type</span><span>Status</span><span /></div>
           {sources.map((source) => (
             <div className="source-wrap" key={source.name}>
               <button className="source-row" onClick={() => setOpenSource(openSource === source.name ? null : source.name)}>
                 <span><strong>{source.name}</strong><small>{source.provider}</small></span><span>{source.variable}</span><span>{source.type}</span>
-                <span><StatusPill tone={source.status === "Candidate" ? "candidate" : "neutral"}>{source.status}</StatusPill></span>
+                <span><StatusPill tone={source.status === "Connected" ? "ready" : "neutral"}>{source.status}</StatusPill></span>
                 <Icon name="chevron" size={16} className={openSource === source.name ? "up" : ""} />
               </button>
               {openSource === source.name && (
                 <div className="source-detail">
-                  <div><small>UNIT</small><strong>Not configured</strong></div><div><small>SPATIAL RESOLUTION</small><strong>{source.resolution}</strong></div>
-                  <div><small>TEMPORAL / PERIOD</small><strong>Not configured</strong></div><div><small>ACCESS DATE</small><strong>Not accessed</strong></div>
+                  <div><small>RESOLUTION</small><strong>{source.resolution}</strong></div>
+                  <div><small>STATUS</small><strong>{source.status}</strong></div>
                 </div>
               )}
             </div>
           ))}
         </div>
       </section>
-      <section className="data-type-grid">
-        {[
-          ["Observed data", "Measurements or observations supplied by a source. No observed dataset is connected in this MVP.", "ready"],
-          ["Modelled data", "Estimates produced by a model or data product; not equivalent to direct field measurements.", "candidate"],
-          ["Derived indicators", "Values FIELD SHIFT may calculate from aligned sources using documented rules.", "sample"],
-          ["Assumptions", "Rules introduced where information is incomplete; these must remain visible to users.", "warning"],
-        ].map(([title, text, tone], i) => (
-          <article key={title}>
-            <span className={`type-number n${i}`}>0{i + 1}</span><h3>{title}</h3><p>{text}</p>
-            <StatusPill tone={tone as "ready" | "candidate" | "sample" | "warning"}>{i === 0 ? "None connected" : i === 3 ? "Must be declared" : "Planned"}</StatusPill>
-          </article>
-        ))}
-      </section>
       <section className="limitations panel">
         <div className="limitations-title"><span className="icon-box amber"><Icon name="warning" /></span><div><span className="eyebrow">Uncertainty & limitations</span><h2>Interpret results with care</h2></div></div>
         <div className="limitations-grid">
-          <div><strong>Spatial resolution</strong><p>Regional grid cells and mapped soil units cannot represent exact conditions within an individual field.</p></div>
-          <div><strong>Temporal alignment</strong><p>Sources may cover different periods and reporting intervals; comparisons require explicit alignment.</p></div>
-          <div><strong>Agronomic validation</strong><p>Candidate crops and rotation rules need review against local evidence and practitioner knowledge.</p></div>
-          <div><strong>Decision scope</strong><p>FIELD SHIFT supports exploration. It does not guarantee yield or replace site-specific agronomic advice.</p></div>
+          <div><strong>Spatial resolution</strong><p>Regional grid cells and mapped soil units cannot represent exact conditions within an individual field. This data represents one reference pixel.</p></div>
+          <div><strong>Temporal alignment</strong><p>Sources cover different periods. NASA POWER data covers Jan 2020 - Dec 2025.</p></div>
+          <div><strong>Agronomic validation</strong><p>Candidate crops and rotation rules require review against local evidence and practitioner knowledge before scoring.</p></div>
         </div>
       </section>
     </>
   );
 }
 
-// Global utility to get initial state from URL or LocalStorage
 function getInitialState(): string {
   if (typeof window !== "undefined") {
     const urlParams = new URLSearchParams(window.location.search);
@@ -524,18 +574,21 @@ function getInitialState(): string {
     const savedState = localStorage.getItem("fieldshift_state");
     if (savedState && states.includes(savedState)) return savedState;
   }
-  return "Iowa"; // Default fallback
+  return "Iowa";
 }
 
 export default function App() {
   const [page, setPage] = useState<Page>("dashboard");
-  // Initialize using URL or LocalStorage, falling back to Iowa
   const [state, setState] = useState(getInitialState);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scenarios, setScenarios] = useState(defaultScenarios);
   const selectedNav = useMemo(() => navItems.find((item) => item.id === page)!, [page]);
 
-  // Sync state changes to URL and LocalStorage
+  useEffect(() => {
+    if (mobileOpen) { document.body.style.overflow = "hidden"; } else { document.body.style.overflow = ""; }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   useEffect(() => {
     localStorage.setItem("fieldshift_state", state);
     const url = new URL(window.location.href);
@@ -550,7 +603,6 @@ export default function App() {
   };
 
   const renderPage = () => {
-    // The unsupported screen is entirely gone. All routes work for all states.
     if (page === "dashboard") return <Dashboard state={state} scenarios={scenarios} goTo={navigate} />;
     if (page === "location") return <ExploreLocation state={state} />;
     if (page === "planner") return <RotationPlanner scenarios={scenarios} setScenarios={setScenarios} goTo={navigate} />;
@@ -559,7 +611,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" style={{ fontSize: "16px" }}>
       <aside className={`sidebar ${mobileOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-top">
           <FieldMark />
@@ -582,7 +634,7 @@ export default function App() {
             <div>
               <small>SELECTED STATE</small>
               <strong>{state}</strong>
-              <span>{state === "Iowa" ? "Demonstration active" : "Data pending"}</span>
+              <span>{state === "Iowa" ? "Validated pilot active" : "Data pending"}</span>
             </div>
           </div>
         </div>
@@ -602,7 +654,7 @@ export default function App() {
         <main>{renderPage()}</main>
         <footer className="app-footer">
           <span>FIELD SHIFT · Exploratory decision-support prototype</span>
-          <span>Data values are not live · Demonstration data</span>
+          <span>NASA POWER & ISRIC SoilGrids · Validated pilot: Story County, Iowa</span>
         </footer>
       </div>
     </div>

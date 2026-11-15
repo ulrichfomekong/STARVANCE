@@ -1,0 +1,10 @@
+{
+  "clay_percent": 28.4,
+  "nitrogen_g_kg": 3.08,
+  "ph_water": 6.4,
+  "soil_organic_carbon_g_kg": 24.5,
+  "depth_cm": "0-5",
+  "source": "ISRIC SoilGrids 2.0",
+  "reference_coordinates": "42.0361668° N, -93.4650441° W",
+  "limitation_note": "Modelled estimates. Represents one reference pixel. Not laboratory measurements. Not county-wide or field-level."
+}
