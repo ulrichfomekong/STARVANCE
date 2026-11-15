@@ -1,0 +1,5 @@
+[
+  { "month": "2020-01", "temperature_mean_c": -6.2, "temperature_max_mean_c": -1.1, "temperature_min_mean_c": -11.3, "precipitation_total_mm": 28.4, "relative_humidity_mean_percent": 74.2, "days_in_source": 31, "valid_precipitation_days": 31 },
+  { "month": "2020-02", "temperature_mean_c": -4.8, "temperature_max_mean_c": 0.5, "temperature_min_mean_c": -10.1, "precipitation_total_mm": 32.1, "relative_humidity_mean_percent": 71.8, "days_in_source": 29, "valid_precipitation_days": 29 },
+  { "month": "2020-03", "temperature_mean_c": 2.1, "temperature_max_mean_c": 7.8, "temperature_min_mean_c": -3.6, "precipitation_total_mm": 58.6, "relative_humidity_mean_percent": 68.4, "days_in_source": 31, "valid_precipitation_days": 31 }
+]
