@@ -2,6 +2,7 @@ export interface MonthlyEnvironmentalRecord {
   month: string;
   temperature_mean_c: number | null;
   precipitation_total_mm: number | null;
+  relative_humidity_mean_percent: number | null;
 }
 
 export interface SoilProperty {

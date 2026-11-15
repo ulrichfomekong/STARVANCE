@@ -156,10 +156,10 @@ function Dashboard({ state, county, context, scenarios, goTo }: { state: string;
   const latestMonth = monthlyRecords[monthlyRecords.length - 1];
   const soilProperties = context?.soil_dataset.properties;
   const metrics = [
-    { icon: "rain" as IconName, label: "Monthly precipitation", value: latestMonth?.precipitation_total_mm == null ? "Unavailable" : `${latestMonth.precipitation_total_mm.toFixed(1)} mm`, meta: latestMonth?.month ?? "NASA POWER monthly record", source: "NASA POWER · reference point" },
     { icon: "temperature" as IconName, label: "Mean temperature", value: latestMonth?.temperature_mean_c == null ? "Unavailable" : `${latestMonth.temperature_mean_c.toFixed(1)} °C`, meta: latestMonth?.month ?? "NASA POWER monthly record", source: "NASA POWER · reference point" },
-    { icon: "soil" as IconName, label: "Soil pH", value: soilProperties?.phh2o ? `${soilProperties.phh2o.value} ${soilProperties.phh2o.unit}` : "Unavailable", meta: context?.soil_dataset.depth_interval ?? "SoilGrids estimate", source: "SoilGrids · modelled estimate" },
-    { icon: "layers" as IconName, label: "Clay content", value: soilProperties?.clay ? `${soilProperties.clay.value} ${soilProperties.clay.unit}` : "Unavailable", meta: context?.soil_dataset.depth_interval ?? "SoilGrids estimate", source: "SoilGrids · modelled estimate" },
+    { icon: "rain" as IconName, label: "Monthly precipitation", value: latestMonth?.precipitation_total_mm == null ? "Unavailable" : `${latestMonth.precipitation_total_mm.toFixed(1)} mm`, meta: latestMonth?.month ?? "NASA POWER monthly record", source: "NASA POWER · reference point" },
+    { icon: "water" as IconName, label: "Relative humidity", value: latestMonth?.relative_humidity_mean_percent == null ? "Unavailable" : `${latestMonth.relative_humidity_mean_percent.toFixed(1)} %`, meta: latestMonth?.month ?? "NASA POWER monthly record", source: "NASA POWER · reference point" },
+    { icon: "soil" as IconName, label: "Soil organic carbon", value: soilProperties?.soc ? `${soilProperties.soc.value} ${soilProperties.soc.unit}` : "Unavailable", meta: context?.soil_dataset.depth_interval ?? "SoilGrids estimate", source: "SoilGrids · modelled estimate" },
   ];
 
   return (
@@ -247,6 +247,12 @@ function Dashboard({ state, county, context, scenarios, goTo }: { state: string;
 }
 
 function ExploreLocation({ state, county, context }: { state: string; county: string; context: ProjectContext | null }) {
+  const soilMetrics = [
+    { key: "clay", label: "Clay" },
+    { key: "nitrogen", label: "Total nitrogen" },
+    { key: "phh2o", label: "pH in water" },
+    { key: "soc", label: "Soil organic carbon" },
+  ];
   return (
     <>
       <PageHeader
@@ -291,6 +297,24 @@ function ExploreLocation({ state, county, context }: { state: string; county: st
                 <div><strong>{name}</strong><span>{status}</span></div>
               </div>
             ))}
+            <h3 className="soil-properties-title">SoilGrids properties</h3>
+            <p className="soil-properties-caption">
+              {context ? `${context.soil_dataset.statistic} estimates · ${context.soil_dataset.depth_interval}` : "Approved soil context unavailable"}
+            </p>
+            <div className="soil-property-grid">
+              {soilMetrics.map((metric) => {
+                const property = context?.soil_dataset.properties[metric.key];
+                return (
+                  <div className="soil-property-card" key={metric.key}>
+                    <small>{metric.label}</small>
+                    <strong>{property ? `${property.value} ${property.unit}` : "Unavailable"}</strong>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="soil-properties-note">
+              Modelled values from one reference pixel; not laboratory measurements or county-wide conditions.
+            </p>
           </article>
         </aside>
       </section>
@@ -603,6 +627,15 @@ export default function App() {
   const state = context?.pilot_geography.state ?? "Iowa";
   const county = context?.pilot_geography.county ?? "Story County";
   const selectedNav = useMemo(() => navItems.find((item) => item.id === page)!, [page]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileOpen]);
 
   useEffect(() => {
     let active = true;

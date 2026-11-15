@@ -31,7 +31,12 @@ class BackendApiTests(unittest.TestCase):
             context["environmental_dataset"]["metadata"]["source"],
             "NASA POWER Daily API",
         )
+        self.assertIn(
+            "relative_humidity_mean_percent",
+            context["environmental_dataset"]["monthly_records"][-1],
+        )
         self.assertEqual(context["soil_dataset"]["source"], "ISRIC SoilGrids 2.0")
+        self.assertEqual(context["soil_dataset"]["properties"]["soc"]["value"], 24.5)
         self.assertEqual(len(context["environmental_dataset"]["monthly_records"]), 72)
 
     def test_compare_returns_descriptive_result_without_scores(self):
