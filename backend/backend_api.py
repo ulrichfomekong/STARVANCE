@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 from urllib.parse import urlsplit
 
+from ai_comparison import AIComparisonError, generate_comparison_insights
 from rotation_engine import (
     APPROVED_ENVIRONMENTAL_FILE,
     APPROVED_SOIL_FILE,
@@ -46,7 +47,8 @@ class FieldShiftHandler(BaseHTTPRequestHandler):
         self._send_json(404, {"error": "API route not found."})
 
     def do_POST(self) -> None:
-        if urlsplit(self.path).path != "/api/compare":
+        route = urlsplit(self.path).path
+        if route not in {"/api/compare", "/api/compare/insights"}:
             self._send_json(404, {"error": "API route not found."})
             return
         if self.headers.get_content_type() != "application/json":
@@ -74,6 +76,15 @@ class FieldShiftHandler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": "Request body must be a JSON object."})
             return
 
+        if route == "/api/compare/insights":
+            rotations = payload.get("rotations")
+            if not isinstance(rotations, list) or len(rotations) != 2:
+                self._send_json(
+                    400,
+                    {"error": "Provide exactly two rotations for AI insights."},
+                )
+                return
+
         try:
             result = compare_rotations(
                 payload,
@@ -87,7 +98,35 @@ class FieldShiftHandler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": str(error)})
             return
 
-        self._send_json(200, result)
+        if route == "/api/compare":
+            self._send_json(200, result)
+            return
+
+        try:
+            project_context = load_project_context(
+                APPROVED_ENVIRONMENTAL_FILE,
+                APPROVED_SOIL_FILE,
+            )
+        except (OSError, ValueError) as error:
+            self._send_json(503, {"error": f"Approved project data unavailable: {error}"})
+            return
+
+        try:
+            insights = generate_comparison_insights(result, project_context)
+        except AIComparisonError as error:
+            self._send_json(
+                error.status_code,
+                {"error": str(error), "code": error.error_code},
+            )
+            return
+
+        self._send_json(
+            200,
+            {
+                **insights,
+                "deterministic_comparison": result,
+            },
+        )
 
 
 def create_server(host: str = "127.0.0.1", port: int = 8765) -> HTTPServer:

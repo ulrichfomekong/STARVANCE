@@ -1,6 +1,8 @@
 import json
+import os
 import threading
 import unittest
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -115,6 +117,98 @@ class BackendApiTests(unittest.TestCase):
         response_body = error.exception.read().decode()
         error.exception.close()
         self.assertIn("unsupported crop", response_body)
+
+    def test_compare_insights_returns_ai_and_deterministic_results(self):
+        payload = {
+            "rotations": [
+                {
+                    "rotation_id": "a",
+                    "name": "Scenario A",
+                    "seasons": [
+                        {"year": 1, "season": "Season 1", "crop": "Soybean"},
+                        {"year": 2, "season": "Season 2", "crop": "Corn"},
+                    ],
+                },
+                {
+                    "rotation_id": "b",
+                    "name": "Scenario B",
+                    "seasons": [
+                        {"year": 1, "season": "Season 1", "crop": "Corn"},
+                        {"year": 2, "season": "Season 2", "crop": "Oats"},
+                    ],
+                },
+            ]
+        }
+        request = Request(
+            f"{self.base_url}/api/compare/insights",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        mocked_insights = {
+            "ai_generated": True,
+            "provider": "OpenRouter",
+            "model": "test/model",
+            "insights": {"comparison_summary": "VERIFIED DATA: The sequences differ."},
+        }
+        with patch(
+            "backend_api.generate_comparison_insights",
+            return_value=mocked_insights,
+        ):
+            with urlopen(request) as response:
+                result = json.loads(response.read())
+
+        self.assertTrue(result["ai_generated"])
+        self.assertIsNone(result["deterministic_comparison"]["scores"])
+        self.assertIsNone(result["deterministic_comparison"]["recommendation"])
+        self.assertEqual(
+            result["insights"]["comparison_summary"],
+            "VERIFIED DATA: The sequences differ.",
+        )
+
+    def test_compare_insights_reports_missing_api_key(self):
+        payload = {
+            "rotations": [
+                {
+                    "rotation_id": "a",
+                    "name": "Scenario A",
+                    "seasons": [{"year": 1, "season": "Season 1", "crop": "Corn"}],
+                },
+                {
+                    "rotation_id": "b",
+                    "name": "Scenario B",
+                    "seasons": [{"year": 1, "season": "Season 1", "crop": "Soybean"}],
+                },
+            ]
+        }
+        request = Request(
+            f"{self.base_url}/api/compare/insights",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with patch.dict(os.environ, {"OPENROUTER_API_KEY": ""}):
+            with self.assertRaises(HTTPError) as error:
+                urlopen(request)
+        self.assertEqual(error.exception.code, 503)
+        response_body = json.loads(error.exception.read().decode())
+        error.exception.close()
+        self.assertEqual(response_body["code"], "ai_unavailable")
+        self.assertIn("OPENROUTER_API_KEY", response_body["error"])
+
+    def test_compare_insights_requires_exactly_two_rotations(self):
+        request = Request(
+            f"{self.base_url}/api/compare/insights",
+            data=json.dumps({"rotations": []}).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with self.assertRaises(HTTPError) as error:
+            urlopen(request)
+        self.assertEqual(error.exception.code, 400)
+        response_body = error.exception.read().decode()
+        error.exception.close()
+        self.assertIn("exactly two rotations", response_body)
 
 
 if __name__ == "__main__":

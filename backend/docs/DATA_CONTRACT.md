@@ -148,8 +148,11 @@ The location views use an interactive Leaflet map with OpenStreetMap tiles, cent
 | `/api/health` | GET | Basic API liveness check |
 | `/api/context` | GET | Approved geography, coordinates, NASA POWER monthly records, SoilGrids properties, and limitations |
 | `/api/compare` | POST | Validate two or more user-defined rotations and return descriptive metrics plus matching cited research observations |
+| `/api/compare/insights` | POST | Optional OpenRouter-generated explanation for exactly two rotations; returns the deterministic comparison alongside validated, source-grounded insights |
 
 The comparison endpoint always reads the approved NASA POWER and SoilGrids files; request data cannot select alternate datasets. Invalid rotation payloads receive a client error, and missing project files receive a service-unavailable response. The context endpoint reports unavailable or invalid source data as service unavailable. The development Vite server proxies `/api` to the local API; production hosting must provide an equivalent `/api` route to the backend.
+
+The optional insights endpoint requires `OPENROUTER_API_KEY` in the backend process environment and uses `OPENROUTER_MODEL` when configured. It does not change or add a key requirement to `/api/compare`. It sends the validated crop sequences, deterministic metrics, approved environmental/soil context, and only source observations already emitted by the rotation engine to OpenRouter. The endpoint rejects malformed model output, numeric claims, extra score/ranking fields, and source IDs not attached to the relevant sequence. Its response is labelled AI-generated and includes a fixed validation notice; it is not an agronomic recommendation. The frontend does not yet call this endpoint.
 
 ## 6. Agronomic integration gate
 
