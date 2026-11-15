@@ -354,6 +354,47 @@ def _dataset_context(
     return context
 
 
+def load_project_context(
+    environmental_path: str | Path = APPROVED_ENVIRONMENTAL_FILE,
+    soil_path: str | Path = APPROVED_SOIL_FILE,
+) -> dict[str, Any]:
+    """Load approved project context with provenance and spatial limitations."""
+    _validate_approved_project_data(environmental_path, soil_path)
+    environmental = _read_json(environmental_path)
+    soil = _read_json(soil_path)
+    monthly_records = environmental.get("monthly_records")
+    properties = soil.get("properties")
+
+    if not isinstance(monthly_records, list):
+        raise ValueError("Approved environmental dataset is missing monthly records.")
+    if not isinstance(properties, dict):
+        raise ValueError("Approved soil dataset is missing soil properties.")
+
+    return {
+        "pilot_geography": dict(APPROVED_GEO),
+        "reference_coordinates": dict(APPROVED_COORDINATES),
+        "environmental_dataset": {
+            "metadata": environmental["metadata"],
+            "monthly_records": monthly_records,
+        },
+        "soil_dataset": {
+            "source": soil["source"],
+            "source_type": soil.get("source_type"),
+            "depth_interval": soil.get("depth_interval"),
+            "statistic": soil.get("statistic"),
+            "location": soil["location"],
+            "properties": properties,
+            "limitations": soil.get("limitations", []),
+        },
+        "interpretation_limit": (
+            "NASA POWER values represent one reference-point extraction, not "
+            "county-wide or field-level conditions. SoilGrids values are "
+            "modelled estimates for one reference pixel and the stated depth, "
+            "not laboratory measurements."
+        ),
+    }
+
+
 def _transition_evidence(previous_crop: str, following_crop: str) -> list[dict[str, Any]]:
     key = (following_crop.strip().lower(), previous_crop.strip().lower())
     observation = RESEARCH_OBSERVATIONS.get(key)

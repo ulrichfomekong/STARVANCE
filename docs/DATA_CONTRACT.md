@@ -122,7 +122,19 @@ The descriptive engine accepts a JSON object with at least two rotations:
 
 The engine does **not** calculate crop suitability, yield, profitability, pest/disease pressure, nutrient response, water stress, climate adaptation, or field-specific rotation benefit/penalty. Research observations are limited to directly reviewed sources (currently S01, S13, and S15), are cited in the output, and include study limitations. Such notes do not activate unvalidated draft rules or produce a score or recommendation.
 
-## 5. Agronomic integration gate
+## 5. Local HTTP API
+
+`backend_api.py` exposes the project data and descriptive comparison to the React app using Python's standard-library HTTP server. Run it with `python backend_api.py` or `npm run dev:api`; it listens on `127.0.0.1:8765` by default. `FIELD_SHIFT_API_PORT` changes the listener port.
+
+| Route | Method | Purpose |
+|---|---|---|
+| `/api/health` | GET | Basic API liveness check |
+| `/api/context` | GET | Approved geography, coordinates, NASA POWER monthly records, SoilGrids properties, and limitations |
+| `/api/compare` | POST | Validate two or more user-defined rotations and return descriptive metrics plus matching cited research observations |
+
+The comparison endpoint always reads the approved NASA POWER and SoilGrids files; request data cannot select alternate datasets. Invalid rotation payloads receive a client error, and missing project files receive a service-unavailable response. The context endpoint reports unavailable or invalid source data as service unavailable. The development Vite server proxies `/api` to the local API; production hosting must provide an equivalent `/api` route to the backend.
+
+## 6. Agronomic integration gate
 
 Rules that go beyond study-scoped research observations remain disabled until validated by the project agronomy owner. Each future active rule should document:
 - rule identifier and plain-language explanation
@@ -136,7 +148,7 @@ Rules that go beyond study-scoped research observations remain disabled until va
 
 Until that review is complete, do not expose a numeric agronomic score or a “best rotation” recommendation. The current reviewed corn-rotation notes are single-study context from Iowa State's Nashua experiment; they are not local field predictions or fertilizer-rate advice.
 
-## 6. Suggested repository placement
+## 7. Suggested repository placement
 
 ```text
 STARVANCE/
